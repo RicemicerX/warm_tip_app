@@ -37,13 +37,6 @@ jobs:
       - name: Build EXE (PyInstaller)
         run: pyinstaller --noconsole --onefile --name warm_tip warm_tip.py
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: warm_tip-windows-exe
-          path: dist/warm_tip.exe
-          if-no-files-found: error
-
       # 上传产物，供下载
       - name: Upload artifact
         uses: actions/upload-artifact@v4
