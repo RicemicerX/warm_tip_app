@@ -4,27 +4,35 @@ on:
   push:
     branches: [ main, master ]
     paths:
-      - "warm_tip.py"
+      - "warm_tip.py"                     # 脚本更新时触发
       - ".github/workflows/build-windows.yml"
       - "requirements.txt"
       - "assets/**"
-  workflow_dispatch: {}
+  workflow_dispatch: {}                   # 支持手动触发
 
 jobs:
   build-win:
     runs-on: windows-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Python
+      # 使用 3.12 是因为 Tkinter 和 PyInstaller 在该版本支持成熟
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      # 如果有 requirements.txt 就安装依赖；如无将跳过
       - name: Install dependencies
         if: hashFiles('requirements.txt') != ''
         run: pip install -r requirements.txt
+
       - name: Install PyInstaller
         run: pip install pyinstaller
+
+      # 打包脚本为 Windows EXE
       - name: Build EXE (PyInstaller)
         run: >
           pyinstaller --noconsole --onefile
@@ -32,10 +40,14 @@ jobs:
           ${env:ICON_FLAG}
           warm_tip.py
         env:
+          # 如果仓库中存在 assets/app.ico，则添加自定义图标
           ICON_FLAG: ${{ (hashFiles('assets/app.ico') != '') && '--icon assets/app.ico' || '' }}
+
+      # 上传产物，供下载
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: warm_tip-windows-exe
           path: dist/warm_tip.exe
           if-no-files-found: error
+
