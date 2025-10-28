@@ -33,15 +33,16 @@ jobs:
         run: pip install pyinstaller
 
       # 打包脚本为 Windows EXE
+
       - name: Build EXE (PyInstaller)
-        run: >
-          pyinstaller --noconsole --onefile
-          --name warm_tip
-          ${env:ICON_FLAG}
-          warm_tip.py
-        env:
-          # 如果仓库中存在 assets/app.ico，则添加自定义图标
-          ICON_FLAG: ${{ (hashFiles('assets/app.ico') != '') && '--icon assets/app.ico' || '' }}
+        run: pyinstaller --noconsole --onefile --name warm_tip warm_tip.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: warm_tip-windows-exe
+          path: dist/warm_tip.exe
+          if-no-files-found: error
 
       # 上传产物，供下载
       - name: Upload artifact
